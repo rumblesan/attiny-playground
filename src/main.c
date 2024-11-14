@@ -8,7 +8,7 @@
 #include <util/delay.h>
 
 #include "i2c_primary.h"
-#include "mpr121.h"
+#include "lcd.h"
 
 #define LED_ERR_PIN PB3
 #define LED_ACK_PIN PB1
@@ -41,32 +41,23 @@ int main () {
 
   enable_interrupts;
 
-  uint8_t read_byte;
+  unsigned char ack;
 
   red_led_flash();
   yellow_led_flash();
 
   i2c_init();
 
-  if (mpr121_setup()) {
-    error_indicator();
-  }
+  _delay_ms(100);
 
   while (1) {
 
-    read_byte = 0x00;
+    unsigned char addr = (0x27 << 1);
+    i2c_start();
+    ack = i2c_write_byte(addr);
+    i2c_stop();
 
-    /*if (mpr121_read_registry_byte(MPR121_TOUCHSTATUS_L, &read_byte, 1)) {*/
-      /*red_led_flash();*/
-    /*}*/
-    if (mpr121_read_registry_byte(MPR121_CONFIG2, &read_byte, 1)) {
-      red_led_flash();
-    }
-
-    if (read_byte > 0) {
-      yellow_led_flash();
-    }
-    _delay_ms(10);
+    _delay_ms(1);
 
   }
 
